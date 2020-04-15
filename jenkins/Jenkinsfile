@@ -4,6 +4,7 @@ pipeline {
     stages {
         stage('Test') {
             steps {
+                sh 'cd ..'
                 sh 'backstop test'
             }
         }
