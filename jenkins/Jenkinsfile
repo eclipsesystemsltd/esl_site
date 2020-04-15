@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages {
-        stage('Test') {
+        stage('Regression Test') {
             steps {
                 sh 'backstop test'
             }
