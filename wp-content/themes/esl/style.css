@@ -219,7 +219,7 @@ img.alignleft {
   background: url(img/orange-off-right.png) no-repeat;
 }
 
-/*.purple:hover .left {
+.purple:hover .left {
   background: url(img/orange-off-left.png) no-repeat;
 }
 
@@ -241,7 +241,7 @@ img.alignleft {
 
 .orange-off .right {
   background: url(img/orange-off-right.png) no-repeat;
-}*/
+}
 
 .orange-over:hover .left,
 .orange-over .left {
@@ -665,6 +665,7 @@ img.alignleft {
     border: 1px solid #75B0B7;
 }
 
+/* Normal */
 #controls {
 	position: absolute;
 	top: 430px;
@@ -674,6 +675,18 @@ img.alignleft {
         display: block;
         clear: left;
 }
+/* Xmas */
+/*
+#controls {
+	position: absolute;
+	top: 550px;
+	margin: 0;
+	padding: 0;
+        margin-left: 502px;
+        display: block;
+        clear: left;
+}
+*/
 
 #controls > li {
 	padding: 0 3px 3px 3px;
