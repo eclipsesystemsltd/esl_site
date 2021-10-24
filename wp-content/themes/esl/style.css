@@ -1,5 +1,4 @@
-﻿
-/* Eclipse Systems CSS */
+﻿/* Eclipse Systems CSS */
 /* HTML5 Boilerplate  */
 
 article, aside, details, figcaption, figure, footer, header, hgroup, nav, section { display: block; }
@@ -675,8 +674,7 @@ img.alignleft {
         display: block;
         clear: left;
 }
-/* Xmas */
-/*
+/* Xmas 
 #controls {
 	position: absolute;
 	top: 550px;
@@ -737,6 +735,10 @@ img.alignleft {
 .banner-right {
 	margin: 0 0 0 305px;
     width: 320px;
+}
+.banner-right-halloween {
+	margin: 0 0 0 400px;
+    width: 220px;
 }
 
 /* The id is unnecessary for selecting, but ensures this is higher priority than the default link selector which also uses an id */
