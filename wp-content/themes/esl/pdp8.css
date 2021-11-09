@@ -23,6 +23,7 @@
     border: 2px solid white;
 }
 
+
 .dec-char {
     border-right: 2px solid white;
     font-family: 'Lucida Console', arial, sans-serif;
@@ -82,7 +83,7 @@
     left: 0;
 }
 
-.pdp8-logo-version {
+.pdp8-logo-submodel {
     color: white;
     font-size: 25px; 
     font-weight: bold;

@@ -1,0 +1,190 @@
+
+<h3>TD8E Notes</h3>
+<p>Some notes on the TD8E by the seemingly legendary PDP-8 expert Charles Lasner</p>
+<p>
+The TD8E is an *economy* version of a DECtape drive/controller. Its only purpose is compatible data interchange with sites using
+TC01/08 and other TD8Es. Many applications meant for use on a machine with a TC01/08 or other disk devices *cannot* function with a TD8E.
+These include any application that uses either interrupts *or* DMA. Further, the handler code for the TD8E is larger and causes trade-offs
+in performance that are not encountered in the TC01/08 versions. Using additional hardware coupled with appropriate software can partially
+overcome some of these problems, but none of this is in current use.
+</p>
+<p>
+Let's examine some of these issues in detail:
+</p>
+<p>
+The TD8E reliability problem.
+</p>
+<p>
+The TD8E is intrinsically less reliable than the other tape systems because it requires mechanical maintenance of the drive to a degree
+not required for use with TC01/08. Curiously, this means that the TD8E is a good diagnostic tool for maintaining TU56 drives used on TC01/08,
+since running adequately on a TD8E guarantees reliable performance on a TC01/08 :-).
+</p>
+<p>
+Most of this problem stems from the following:
+</p>
+<p>
+The TD8E requires the PDP-8 to be in close sync with the gyrations of the tape in terms of instantaneous timing. The design of DECtape in
+general is such that small to moderate speed changes occur constantly. This is caused by friction in the tape heads and guide interface and is
+normal for a drive in good working order, or at least up to a point. Dirt, wear, sticky oxide contaminating wear surfaces, etc. are all
+normal facts of life in a DECtape drive. The rear cheek plates will tend to wear a thin score line at the tape path which builds up walls
+of oxide making the effective depth of the "trench" much larger unless the oxide is removed often. Ignoring this last problem will also make
+the actual score line deeper sooner as well. The media also tends to slowly wear at the edges because of the rubbing, which causes the tape
+to be less stable when passing over the head. Severe wear situations sometimes cause the tape to have fluted edges which interferes with
+smooth tape motion severely. All of these factors together add up to an instantaneous jitter factor in the transfer of data off the tape.  
+</p>
+<p>
+The TC01 and TC08 were designed to handle this jitter and can actually deal with situations where the nominal 133 microseconds per
+12-bits transfer is deviated from by as much as 100 percent. Thus data can transfer in as little as 66 microseconds or as much as 266
+microseconds depending on the frictional factors. Note that the average tape speed is fairly constant, merely slightly increasing or
+decreasing as the effective tape diameter changes with overall tape position. Anyone who has ever looked at the timing track output of a
+TU55 or TU56 drive directly on an oscilloscope will understand this phenomena correctly.
+</p>
+<p>
+The TD8E problem is that a critical software loop tries to keep in sync with the data transferred during these potentially jerky
+transfers.  The longer transfers aren't problematic, just the shorter ones. However, the software *never* includes timeout checks, so the
+coding is ignorant of the fact the timing is getting erratic. On the TC01/08, the data separator circuit can issue a timing error if the
+data becomes either too slow or too fast. (The so-called TIMING error is actually the OR of these and several other conditions, including an
+inability to accomplish a DMA cycle in time as well, etc.) I guess this means that the TC01/08 is a good diagnostic tool for maintaining
+TU56 drives for TD8Es :-).
+</p>
+<p>
+The reason there are no time-out checks in the TD8E code is because there is no time to handle the overhead of the counting! TD8E handlers
+are highly compromised for many other reasons, and can't afford more overhead, even if it would make transfers more trustworthy, etc. This
+is because of those short-cycle transfers described above. Should a short-cycle data transfer happen during a phase where the code is
+"overloaded" easily, then an undetected error will happen. It is conceivable that the tape can become de-formatted at this point if
+timing is lost while writing. This is impossible on the TC01/08 because the hardware shuts down all transfers when *any* error occurs,
+so the TIMING error prevents problems. But all existing TD8E code lacks timeout checking for too-short and too-long transfer times.
+</p>
+<p>
+Examining the prevailing TD8E handlers reveals some exceptionally weak areas prone to problems:
+</p>
+<p>
+The ROM-based TD8E handlers are little more than setup routines for the code contained in the MR-8EC ROM. This allows the handlers to
+occupy one page, pretending that the TD8E is a "smart" device, and that memory ends sooner than FIELD 7. This code is very inefficient
+because it resides in FIELD 7 yet uses temporary storage in FIELD 0. The cross-FIELD overhead really hurts in terms of potential data loop
+overload due to jitter.
+</p>
+<p>
+The OS/8 12K system and non-system handlers are not really much better because there is a critical time when the forward checksum is
+being calculated and then written where timing can easily be disrupted by a coincidently short jitter-disrupted cycle.
+</p>
+<p>
+On a side note, I have partially solved the last problem in the equivalent P?S/8 TD8E handlers because I have invented a slightly
+longer piece of code (two instructions longer) that greatly improves the chances of a reliable read in a jittery situation and may slightly
+improve writing reliability.  It is conceivable that by use of other more efficient coding tricks enough space can be bummed out to add this
+feature to the OS/8 handlers (other than the ROM).
+</p>
+<p>
+All current software handlers are superior to the MR-8EC ROM code in another way: the checksum calculation is more efficient in the
+software than the ROM because the ROM is a mediocre adaptation of an early (and obsolete) version of the software. All software was
+upgraded to use a more efficient coding technique for the checksum calculation which recognizes that the EQUIVALENCE operation is merely
+the inverse of the EXCLUSIVE-OR operation. The ROM-based code actually (and wastefully!) bothers to invert the data in numerous places to
+naively and incrementally implement what the TC01/08 does in hardware. The better software merely XORs the data and fixes up at the end only.
+The resultant tighter code adds to the jitter immunity (albeit slightly). The P?S/8 versions are also slightly more efficient on this
+point as well (only a couple of cycles saved, but each one helps :-)). It should be noted that DEC distributed an "official" TD8E subroutine in
+source form to allow users to access tape blocks independently of OS/8. This early code is where the poor ROM techniques originated. This code
+can be upgraded to take advantage of all newer software experience.
+</p>
+<p>
+The TD8E hardware bug.
+</p>
+<p>
+It should be mentioned in passing that there exists a disastrous hardware bug in the TD8E that only affects the 12K system handler for
+OS/8. This bug is totally fixable using only a razor blade, wire and soldering tools (etch add/deletes only, no components), and has been
+documented elsewhere. DEC never discovered this problem so there is no "official" DEC ECO available to implement it, but it should be
+considered mandatory. It is conceivable that the 12K system handler can be redesigned to eliminate dependency on the affected hardware
+being functional, but the official version is totally at risk. The bug only appears in certain hardware configurations and is probably
+dependent on such seemingly irrelevant parameters as:
+</p>
+<p>
+a)  Bus slot where the processor and TD8E cards are plugged into.
+</p>
+<p>
+b)  Whether there is one or two Omnibuses in the box.
+</p>
+<p>
+c)  CPU revision level.
+</p>
+<p>
+d)  Whether there is an RK8E present unless it is fully ECO-ed according to DEC specifications. This corrects a known interaction
+    where the TD8E fails to operate because the RK8E partially wakes up erroneously. The RK8E seems to also interact slightly with this
+    problem as well.
+</p>
+<p>
+e)  Whether or not there are dirty or clean gold fingers on the TD8E card. Amazingly, a dirty TD8E might not glitch while a clean one will!
+</p>
+<p>
+f)  Whether or not EAE is installed. The glitch may occur either way or may reduce by removing or adding the EAE cards.
+</p>
+<p>
+g)  Power supply voltage settings and ambient temperature.
+</p>
+<p>
+The hardware problem is due to a marginal timing error in the design of the TD8E which allows a potential attempt to clear the AC
+being erroneously generated during the SDLD instruction. While inadequate in width to be reliable, this glitch can occasionally
+succeed in clearing the AC. A tight software loop such as SDLD; JMP .-1 will display the glitch on an oscilloscope connected to the C0 buss
+line (C0 grounded means clear the AC during output IOTs). Changing any of the above parameters may influence the analog properties of this
+waveform due to its "illegal" nature.
+</p>
+<p>
+From a software perspective, the bug is that the SDLD instruction which loads the AC into the data register should *NOT* clear the AC,
+yet it *sometimes* *DOES* !! Only the 12K system handler cares about this because the code uses the data register to pass a parameter
+between sections of coding. This is essentially legal on working TD8Es because the data is always valid for 133 microseconds nominally, and
+indefinitely if the tape is not moving. (The code assumes the tape is not moving or is deselected at the time which is barely acceptable.)
+All other code deals with the AC as being "dirty" after this instruction so the AC gets cleared afterwards deliberately thus
+avoiding the problem. (A case could be made to change the TD8E so the instruction *always* clears the AC so the code can be tightened up, but
+this would then be an incompatible device :-(. The OS/8 12K system handler would *always* fail instead of mysteriously sometimes failing.)
+</p>
+<p>
+TD8E-inflicted system weaknesses.
+</p>
+<p>
+The TD8E supports no interrupts because the overhead of an interrupt handler is sufficient to cripple any potential code, even if
+the TD8E was to be handled as the prime interrupt candidate. Thus any application that requires interrupts be enabled can't run any TD8E
+code, be it OS/8-provided code or user-written because of the overhead of a potential interrupt during a critical TD8E event. A complex
+system can be created where interrupts could be allowed during the search phase of the TD8E operation, where the worst-case penalty would
+be missing the correct block necessitating reversing the tape direction, rewinding, reversing again and retrying the search. It
+still is necessary to prevent interrupts during the data transfers.
+</p>
+<p>
+The P?S/8 TD8E system handler implements a pseudo-interrupt feature that can be added to OS/8 if space permits. Both ROM and non-ROM
+P?S/8 systems support the feature. The SKON instruction is used to prevent interrupts during the entire handler process time, and then
+restores the former state of interrupts when the handler exits. This makes the code dependent on the 8/e or better CPU instruction set.
+Considering the jitter problem, it is not recommended to attempt to run the TD8E on slower machines, but the KK-8/a PDP-8/a CPU can be
+attempted on an 8/a system. (Without the SKON instruction, it is possible to run the P?S/8 handler on an 8/l using the DW8E option.)
+</p>
+<p>
+Use of DMA overlapping with TD8E operations is not recommended, but there is no direct way to inform a handler that other devices are
+actually doing DMA. OS/8 in general lacks this problem relative to standard programs using only OS/8 handlers because OS/8 handlers never
+cause interrupts (although some tolerate being interrupted by other devices) and there are *never* any concurrent operations. Several
+devices use coding tricks that depend on this fact so they can use the 3-cycle addresses of the TC01/08, TC-58, and DF32/RF08 as temporaries.
+For example, the TD8E system handler uses 7750-7755 as temporaries because no RF08 operation is allowed (within OS/8) to overlap with the
+handler's usage of these locations.
+</p>
+<p>
+Solving the TD8E problems.
+</p>
+<p>
+If the KG8E is available, a TD8E handler can be written to use it for checksum calculation. This would greatly relax the TD8E timing in
+critical areas, and would possibly allow for the implementation of time-out checking and/or limited interrupts and DMA during TD8E
+operations. Clearly the code would be shorter to accomplish the same functions as well as faster, so the other "tricks" should be easier to
+fit in. The resultant TD8E code would not function without the KG8E, but overall tape format would remain unchanged.
+</p>
+<p>
+Performing all known ECOs to the drives is *highly* recommended because the jitter is substantially lower for an ECO'd drive,
+especially after the drive has been used for a few years.
+</p>
+<p>
+It is certainly compelling to want the TD8E over the TC01/08 considering the added complexity of a pos/neg bus interface and the
+overall bulk of the TC01/08 itself. It is disappointing to note that DEC did implement a TC8E Omnibus DECtape controller to the prototype
+stage, but never sold it. It was totally compatible with the TC01/08 and a frill feature was added: as in the PDP-11 controller, it was
+possible to make the data transfer complement 'obversed' when transferring while the tape spins backwards, so the transferred data words
+would appear in reverse order, but with correct data values otherwise. This is *not* compatible with the TC01/08 which just let the data come
+in complement 'obversed' without correction when transferring backwards. Since this was an option, it could be defeated for programs that
+depended on the "old" way. I believe there was also a third-party announcement of such a device, most likely Computer Operations, but
+sales were undoubtedly minimal.
+</p>
+<p>
+Most TC01/08 users won't deal with the TD8E because they have the better controllers in place. Serious use of the TD8E is possible but
+demands dealing with the issues raised here.
+</p>
