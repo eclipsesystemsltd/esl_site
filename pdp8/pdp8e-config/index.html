@@ -10,27 +10,52 @@
     <meta name="author" content="Codeconvey" />
 
     <link rel="stylesheet" href="../../wp-content/themes/esl/style-gallery1.css">
+    <style>
+      .banner-home {
+        border: none;
+        color: white;
+        padding: 24px 26px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      .banner-row {
+        display: flex;
+      }
+      .banner-column-1 {
+        flex: 5%;
+        padding: 5px;
+      }
+      .banner-column-2 {
+        flex: 95%;
+        padding: 5px;
+      }
+    </style>
 </head>
 
 <body>
-  <div>
-    <a href="../../pdp8/index.html">
-      <div class='pdp8-panel'>
-        <div class='pdp8-panel-upper pdp8e-dark-bg'>
-          <span class='dec-char'>
-          </span><span class='dec-char'>d</span><span class='dec-char'>i</span><span class='dec-char'>g</span>
-          <span class='dec-char'>i</span><span class='dec-char'>t</span><span class='dec-char'>a</span><span class='dec-char'>l</span>
-          <div class='pdp8-logo pdp8e-dark-fg' style='display:flex; margin-left: 10px; padding-bottom: 2px;'>
-            <span class='pdp8-logo-text'>p</span><span class='pdp8-logo-text'>d</span><span class='pdp8-logo-text'>p</span>
-            <span class='pdp8-logo-model'>8</span><span class='pdp8-logo-divider'>/</span><span-- class='pdp8-logo-submodel'>e</span>
+  <div class="banner-row">
+    <div class="banner-column-1">
+      <a class="banner-home" href="../../index.html" title="Home" style="background-image: url('../../wp-content/home.png'); display: inline-block; background-repeat: no-repeat; background-size: contain; background-position: center; background-color: white"></a>
+    </div>
+    <div class="banner-column-2">
+      <a href="../../pdp8/index.html">
+        <div class='pdp8-panel'>
+          <div class='pdp8-panel-upper pdp8e-dark-bg'>
+            <span class='dec-char'></span>
+            <span class='dec-char'>d</span><span class='dec-char'>i</span><span class='dec-char'>g</span><span class='dec-char'>i</span>
+            <span class='dec-char'>t</span><span class='dec-char'>a</span><span class='dec-char'>l</span>
+            <div class='pdp8-logo pdp8e-dark-fg' style='display:flex; margin-left: 10px; padding-bottom: 2px;'>
+              <span class='pdp8-logo-text'>p</span><span class='pdp8-logo-text'>d</span><span class='pdp8-logo-text'>p</span>
+              <span class='pdp8-logo-model'>8</span><span class='pdp8-logo-divider'>/</span><span class='pdp8-logo-submodel'>e</span>
+            </div>
+            <div class='flex-one'></div>
           </div>
-          <div class='flex-one'></div>
+          <div class='pdp8-panel-lower pdp8e-light-bg'>
+            <div class='dec-name'>digital equipment corporation &middot; maynard, massachusetts</div>
+          </div>
         </div>
-        <div class='pdp8-panel-lower pdp8e-light-bg'>
-          <div class='dec-name'>digital equipment corporation &middot; maynard, massachusetts</div>
-        </div>
-      </div>
-    </a>
+        </a>
+    </div>
   </div>
 
   <header class="ScriptHeader">
