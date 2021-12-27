@@ -54,7 +54,7 @@ input[type=search] { -webkit-appearance: textfield; -moz-box-sizing: content-box
 input[type=search]::-webkit-search-decoration, input[type=search]::-webkit-search-cancel-button { -webkit-appearance: none; }
 button::-moz-focus-inner, input::-moz-focus-inner { border: 0; padding: 0; }
 textarea { overflow: auto; vertical-align: top; resize: vertical; }
-input:valid, textarea:valid {  }
+input:valid, textarea:valid { background-color: red; }
 input:invalid, textarea:invalid { background-color: #f0dddd; }
 
 table { border-collapse: collapse; border-spacing: 0; }
@@ -664,32 +664,31 @@ img.alignleft {
     border: 1px solid #75B0B7;
 }
 
-/* Normal */
+/* Normal 
 #controls {
 	position: absolute;
 	top: 430px;
 	margin: 0;
 	padding: 0;
-        margin-left: 732px;
+        margin-left: 702px;
         display: block;
         clear: left;
-}
-/* Xmas 
+}*/
+/* Xmas */
 #controls {
 	position: absolute;
 	top: 550px;
 	margin: 0;
 	padding: 0;
-        margin-left: 502px;
+        margin-left: 552px;
         display: block;
         clear: left;
 }
-*/
+/**/
 
 #controls > li {
 	padding: 0 3px 3px 3px;
 	margin: 0;
-	float: left;
 	display: inline-block;
 	width: 9px;
 	height: 9px;
