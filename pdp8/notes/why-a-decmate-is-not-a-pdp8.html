@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scaling="">
+  <title>Why a DECmate Is Not A PDP-8</title>
+  <link rel="stylesheet" type="text/css" href="../../wp-content/themes/esl/style.css">
+  <link rel="stylesheet" href="../../wp-content/themes/esl/pdp8.css"/>
+</head>
+<body>
+  <div id="container">
+  <div id="inner-container">
+  <div class="banner-column-2">
+    <a href="../../pdp8/index.html">
+      <div class='pdp8-panel'>
+        <div class='pdp8-panel-upper pdp8e-dark-bg'>
+          <span class='dec-char'></span>
+          <span class='dec-char'>d</span><span class='dec-char'>i</span><span class='dec-char'>g</span><span class='dec-char'>i</span>
+          <span class='dec-char'>t</span><span class='dec-char'>a</span><span class='dec-char'>l</span>
+          <div class='pdp8-logo pdp8e-dark-fg' style='display:flex; margin-left: 10px; padding-bottom: 2px;'>
+            <span class='pdp8-logo-text'>p</span><span class='pdp8-logo-text'>d</span><span class='pdp8-logo-text'>p</span>
+            <span class='pdp8-logo-model'>8</span>
+          </div>
+          <div class='flex-one'></div>
+        </div>
+        <div class='pdp8-panel-lower pdp8e-light-bg'>
+          <div class='dec-name'>digital equipment corporation &middot; maynard, massachusetts</div>
+        </div>
+      </div>
+    </a>
+  </div>
+  <br>
+
+  <div>
+    <h2>Why a DECmate Is Not A PDP-8</h2>
+    <p>Some notes on the DECmate by the seemingly legendary PDP-8 expert <strong>Charles Lasner</strong></p>
+    <p>Subject: Why a DECmate isn't a PDP-8</p>
+    <p>From : lasner@watsun.cc.columbia.edu (Charles Lasner)</p>
+    <p>Date: Mon, 1 Mar 1993 18:39:56 GMT</p>
+    <p>
+    This newsgroup is primarily for PDP-8 family stuff, and will therefore support DECmates as well. But a DECmate isn't *quite* a PDP-8 as we know it. Certain
+    problems thwart the prevailing software from running on it, and instead some "bastardized" versions have appeared (such as OS/278). This will be the
+    first in a series of articles to detail the areas of incompatibility and what can be done about them.
+    </p>
+    <h3>
+    1)	CPU issues.
+    </h3>
+    <p>
+    The DECmate is based on the 6120 micro version of the PDP-8. It is mostly compatible, and includes the powerful extension of CP memory and
+    related hardware, dual push-down stacks, etc. Certain instructions have minor differences such as the exact definitions of the PDP-8/e-originating
+    superset instructions GTF and RTF. The differences are so slight that the existing software for PDP-8/e interrupt handling will just work, but certain
+    diagnostic programs will likely fail on these specific points. There are differences such as:
+    </p>
+    <p>
+    PDP-8/e RTF does not clear the AC afterwards; 6120 does. This is even a useful improvement as there is no software reason not to clear the AC at
+    that point. (The AC is being loaded from a temporary to restore the former status saved during an interrupt. Then the AC has to be loaded with the
+    former AC value, thus a CLA after RTF is in all practical 8/e code. The RTF performing its own clear thus allows a 6120-only interrupt handler that
+    is shorter/faster.)
+    </p>
+    <p>
+    PDP-8/e GTF reads back the state of interrupt into bit[4]. PDP-8/e RTF ignores bit[4] and re-enables the interrupt. 6120 GTF reads back a one into
+    bit[4]. 6120 RTF loads interrupt enable per AC[4]. For normal interrupt handling for PDP-8/e, this sequence is essentially compatible enough. Note
+    that classic PDP-8 interrupt handling is totally compatible on all models, but that there are PDP-8/e and newer interrupt routines, etc.
+    </p>
+    <p>
+    The use of extended memory instructions on the PDP-8/e is compatible with former processors, but can be extended via the KT8A or CESI MEC8 extensions.
+    The 6120 is only compatible with the subset found on the PDP-8/e without those extensions because other instructions have been assigned to the same
+    IOTs. These include new instructions such as GCF (Get Current Fields) which is essentially the non-interrupt-oriented version of GTF, etc., and a set of
+    instructions only valid in CP memory to handle that section. Some of the instructions are defined for CP memory trap, and others are for manipulating
+    the built-in dual stack.
+    </p>
+    <p>
+    As long as the program sticks to the compatible subset found in a 32K PDP-8/e, the instructions are otherwise compatible.
+    </p>
+    <h3>
+    2)	Console issues.
+    </h3>
+    <p>
+    On I/O, the 6120 largely parts company with the PDP-8/e. The actual implementation of I/O on the DECmate consists of using packaged interfaces
+    usually called "pie" chips (or Programmed Interface Elements). The problem with these chips is that they are only *almost* compatible with existing
+    PDP-8 interfaces whereas the prevailing OSes demand *total* compatibility with the older hardware. There are several internal interfaces within the
+    DECmate for particular use of no concern to the OS, and this is not at issue, such as the internal interface for the keyboard which is actually on an
+    additional serial port (bidirectionally) or the APU/XPU interface, etc.
+    </p>
+    <p>
+    PDP-8 compatibility demands that the device 03/04 instructions be truly compatible. On the 6121 PIE chip, liberties were taken with the design that
+    cause out-and-out incompatibility such that only trivial programming examples still work, while the actual usage within the operating system is totally
+    incompatible. A breakdown of the console instructions:
+    </p>
+    <p>
+    6030	Clear the keyboard flag, do not advance the reader if a TTY: is the console device, do not clear the AC. The 6120 version of this is to
+      *set* the flag! (This instruction is not used on earlier models, so compatibility issues aren't as bad as it sounds!)
+    </p>
+    <p>
+    6031	Skip on the keyboard flag. Notably, the PDP-8 convention is that this instruction work *precisely* as stated. Specifically, 6031
+      must skip if the flag is set. Repeating the instruction must repeat the same effect. On the 6120, 6031 executes as skip on *and clear*
+      the flag, thus 6031 when repeated is totally incompatible, because the flag won't raise until the data is read. PDP-8 OS compatibility
+      demands that the 6031 repeat facility be present. Without this, various programs, handlers, and all BATCH operations are incompatible.
+      OS/278 consists of a bunch of wimpy emasculated versions of cusps that either don't work properly, have existing bugs to be fixed, or kludges
+      to create the perception of ^C and/or ^S/^Q handling being present correctly, but in point of fact, it is 100% deficient in this area.
+      When OS/278 is run on an actual PDP-8, it behaves as poorly since it can't take advantage of the proper console interface, instead sticking
+      to the subset where 6031 cannot skip repeatedly, etc.
+    </p>
+    <p>
+    6032	Clear the AC, advance reader run if a TTY: console, clear the keyboard flag. On the 6120, 6032 merely clears the AC. Since 6031 clears the
+      flag, they didn't bother to make 6032 accomplish it. However, 6032 on the 6120 will allow the flag to raise for the *next* character since
+      the interface is both buffered and simulated. Due to hardware limitations of the DECmate, it is not possible to re-implement the
+      simulated console interface any better than currently provided. The base reason for this is that only the "even" IOT's are trapped and
+      emulated while the "odd" IOT's are allowed to be used in hardware. Had the entire interface been trapped, we could emulate the compatible
+      version!
+    </p>
+    <p>
+    6033	NOP This IOT is essentially reserved for situations where the interface baud rate could be programmed, but doesn't apply in the case
+      of either the PDP-8 or the DECmate.
+    </p>
+    <p>
+    6034	Read the latest character, do not disturb the flag. The data is logically ORed into the AC. This is used to notice that the data
+      is a ^C or other character without disturbing the flag, so that other software can check it again, after being swapped in. (It's used in
+      conjunction with 6031 which doesn't clear the flag when it skips.) The 6120 version of this instruction is to OR into the AC the *previously
+      read* character provided by either 6032 or 6036, but it cannot initiate a new character by itself. While it is of marginal utility to be able
+      to re-read a previously read character, the inability to read in the latest character without disturbing the flag is the crux of the
+      compatibility issue.
+    </p>
+    <p>
+    6035	Load interrupt enable for devices 03/04 per AC[11]. On the 6120 this is changed to device 03 only. The 04 function is handled by 6045.
+      Since this is a PDP-8/e instruction, it is not a serious compatibility issue except for initialization routines that use interrupts. However,
+      since the keyboard is emulated on the DECmate, interrupt timings may prove "choppy" compared to a real PDP-8, and interrupts to the console
+      are not recommended.
+    </p>
+    <p>
+    6036	LOAD the AC with the latest character and clear the flag. Also enable reader run if the console is a TTY:. Essentially this is the OR of
+      6032 and 6034. The 6120 still ORs together the two operations, but the underlying two operations aren't compatible, since the flag is
+      unaffected. However, reading the character will cause the next character's flag to raise (when available). If 6032 or 6036 is not
+      executed, then the flag will *never* raise even if the user pounds on the keyboard! (There is an OS/278 ODT bug related to this which is
+      fixable per se, but not the ^C handling as described above.)
+    </p>
+    <p>
+    6037	NOP
+    </p>
+    <p>
+    6040	Set the output flag. Actually compatible on 6120! (And not needed for compatibility with earlier machines that didn't have it.)
+    </p>
+    <p>
+    6041	Skip on output flag. Like the input flag, the 6120 also clears the flag when issuing 6041. There is less of a compatibility issue since
+      it is possible to write code that doesn't depend on the second skip, as long as you time out the flag in any initialization code. (P?S/8
+      has always done this in the past; OS/8 tends to not overlap the console I/O so therefore the skip on flag gets checked after outputting
+      not before, so this is good enough for most routines.)
+    </p>
+    <p>
+    6042	Clear the output flag. On the 6120 it clears the AC. Usually the AC contents is unimportant during 6042, so not a serious compatibility
+      issue, but diagnostics will fail.
+    </p>
+    <p>
+    6043	NOP
+    </p>
+    <p>
+    6044	Output the character, do not clear the flag. Same on 6120, but since the output routine is emulated, the flag will immediately be up when
+      the program is running after the trap. On a real PDP-8, the flag comes up one character time later after it's actually sent, not
+      immediately. This could affect some interrupt routines. Again, interrupt handling of the console is not recommended on the DECmate, 
+      especially on the output side.
+    </p>
+    <p>
+    6045	On the PDP-8/e, this is skip on input OR output flag raised AND interrupt enable in the device. Useful to cause interrupt polling
+      routines that have to favor other devices to have less overhead. If the device actually has the flag raised, then you have to do a few
+      extra instructions, but when the interrupt is elsewhere, it lowers the latency. On the 6120, this is replaced with load interrupt
+      enable for device 04 only per AC[11]. Since this is an extension beyond the basic interface, this is a compatibility issue for
+      interrupt-driven PDP-8/e and newer routines only.
+    </p>
+    <p>
+    6046	Output the character and clear the flag now, causing it to raise later. On the 6120, the instruction is trapped, so the net result
+      is to raise the flag when the trap handling is over and execution resumes. Causes interrupt routines to always be entered and no
+      background processing to occur during the simulated interrupt handling, which is not recommended. Non-interrupt programming is
+      not affected by this aspect of compatibility however.
+    </p>
+    <p>
+    6047	NOP
+    </p>
+    <p>
+    So, in summary, console handling is severely incompatible with regard to keyboard handling, and moderately incompatible for screen handling, most
+    notably in regard to either flag initialization and/or interrupt handling.  Yet, simple-minded examples from Introduction to Programming will more-or-less
+    work; "live" OS routines cannot work. I am working on a replacement system to be known as OS/8 Version 5, which will work within the available subset
+    and thus will run on all models. However, existing OS/8 cannot work on the DECmates, and OS/278 cannot perform many functions found in OS/8.
+    </p>
+    <p>
+    Next time, more info on other compatibility issues.
+    </p>
+    <p>
+    cjl
+    </p>
+    <p>
+    This is the second in a series of posts about why the DECmate series of small computers is not quite what we know as a PDP-8. Part one dealt with
+    the few minor CPU issues and detailed the significant differences in the console interfaces between all PDP-8 (and VT-78) models and the DECmates.
+    </p>
+    <p>
+    2a)	Consequences of the console problems and what to do about them.
+    </p>
+    <p>
+    Since the console interface is hopelessly "mangled" we have to learn to live with it. Existing PDP-8 programs designed for the various OSes will
+    have to be either supported as is or be changed for DECmate and PDP-8 use.
+    </p>
+    <p>
+    P?S/8 has already undergone a console "overhaul" such that all system programs can now be run on any model of PDP-8, VT-78, PDP-12, or DECmate. (The family
+    of 8 rule applied to P?S/8 as well as OS/8, thus neither will run on a PDP-5 or PDP-8/s.) To accomplish a compatible console interface compromise, the
+    following rules were laid down:
+    </p>
+    <p>
+    If a program is meant to strictly run on a PDP-8 or VT-78 only, then it can assume the old-style console interface exists. Thus, *only* on a PDP-8
+    can the following code or equivalent be used:
+    </p>
+    <p>
+      KSF			/FLAG UP?
+      JMP	NOT		/FORGET IT
+      KRS			/READ IT IN NOW; DON'T DISTURB THE FLAG
+      AND	(177)		/GET RID OF PARITY BIT
+      TAD	(-3)		/COMPARE TO ^C
+      SZA CLA			/SKIP IF IT MATCHES
+      JMP	CLRIT		/JUMP IF OTHER
+    /	DO WHAT'S NEEDED HERE, SUCH AS SET THE DF TO 00, ETC.
+      JMP I	(7600)		/KEYBOARD MONITOR WILL NOTICE THE ^C
+    
+    CLRIT,	KCC			/CLEAR THE FLAG WE NOTICED ON OTHER THAN ^C
+    NOT,	CLA			/CONTINUE PROCESSING; NO ^C PRESSED
+    </p>
+    <p>
+    This code is applicable to OS/8 and P?S/8, but only on PDP-8's, not DECmates.  The changes to the keyboard monitor of either system has to still include the
+    check for ^C by noticing the KSF skips, execute KRB and check if the character is ^C and take the appropriate action, etc.
+    </p>
+    <p>
+    Note that the pre-DECmate P?S/8 and all pre-V4 OS/8 family systems essentially worked this way, etc.
+    </p>
+    <p>
+    To function on the DECmate, P?S/8 was modified so that there is a new system concept: the "soft ^C" bit. In this specific case, it was defined as bit[11]
+    of the memory size word in 007611 to facilitate being set with an ISZ instruction, etc. Here is a reworked piece of code that can function only
+    on the newly reworked P?S/8 system:
+    </p>
+    <p>
+      KSF			/FLAG UP?
+      JMP	NOT		/FORGET IT
+      KRB			/WE MUST READ THE CHARACTER IN
+      AND	(177)		/GET RID OF PARITY BIT
+      TAD	(-3)		/COMPARE TO ^C
+      SZA CLA			/SKIP IF IT MATCHES
+      JMP	NOT		/JUMP IF OTHER
+    /	DO WHAT'S NEEDED HERE, SUCH AS SET THE DF TO 00, ETC.
+      ISZ I	(7611)		/SET THE "^C WAS HIT" BIT
+      JMP I	(7600)		/KEYBOARD MONITOR WILL NOTICE THE ^C
+    </p>
+    <p>
+    The keyboard monitor in this case won't have a skipping KSF, but since it also examines bit[11] of 007611, it will notice the abort that way. Thus,
+    we have an equivalent of the original code that works on either PDP-8 or DECmate hardware, but only under the new operating system. This code has
+    an additional advantage: certain applications run from an alternate device where a user abort can occur, such as another terminal on other than devices
+    03/04, etc. This could be a serial printer with a keyboard, or a graphics terminal, etc., where it could be desirable to write an application that
+    would have the option of user abort from this alternate device. The program can check for its local abort condition and exit as the replacement console
+    routines would above, thus logically extending the operation to the alternate device.
+    </p>
+    <p>
+    OS/8 requires modification to allow a similar abort exit that is as generic.  The keyboard monitor will have to be made sensitive to a new bit, as well as
+    responding to a skipping KSF/KRB combination that detects ^C, which will allow compatibility with older programs, but only if the hardware is actually a
+    PDP-8 or VT-78, etc. The current candidate is 007601, which is the function word in OS/8's memory save routine that is initiated in 007600. The breakdown
+    of that word is:
+    </p>
+    <p>
+    1 0 1 0 0 0 0 0 0 0 0 0
+    
+    ^______________________		Indicates this call is a write function
+    
+     ^ ^ ^ ^ ^ ___________    Indicates that 8 pages should be written out
+    
+               ^ ^ ^          Indicates that field 00 is to be used
+    
+                     ^ ^ ^    These bits are usually undefined
+    </p>
+    <p>
+    The use of bits[9-11] of the function word of OS/8 are not defined for any file-structured device with a minor exception: bit[11] being set is optionally
+    to be set for the benefit of the existing DECtape/LINCtape handlers to indicate that the caller believes that there is less overhead directing the handler to
+    initiate searching for the requested block in the forward direction, whereas the default is to search backwards. Statistically, most searches ought to be
+    initiated backwards on these devices because it is likely that the next tape transfer is contiguous to the previous one. However, once the latest transfer
+    is completed, it is impossible to restart another transfer without backing up the tape because the latest block has already partially gone by. Thus, in
+    practice, the only calls that can benefit are those where the caller needs widely spread out information stored on known blocks that are further apart
+    than the overshoot factor of the tape (typically 2-3 blocks must be skipped to make use of an additional forward transfer; the DECtape copy program makes
+    use of this feature by only copying half the tape deliberately skipping over many blocks, and then copying only the previously skipped blocks while
+    spinning the tape in the reverse direction skipping over the previously copied blocks.)
+    </p>
+    <p>
+    In actual fact, there are only a small handful of static calls within OS/8 that are made with this bit set, due to the design of OS/8 lacking much need
+    for the feature of search direction override; the usual OS/8 component isn't forward of the previously read in component, etc. Thus, while a useful feature
+    in principle, not much of OS/8 sets the bit because in the static sense, there isn't too much that can be done to predict this situation.
+    </p>
+    <p>
+    Actually, this is unfortunate, since in the dynamic sense, there are quite a few more situations where the actual call could have been made more efficiently
+    had the handler been aware of the circumstances which were not told to the handler.
+    </p>
+    <p>
+    In P?S/8, the OS tells the handler nothing at all in this regard, yet overall performance is noticeably better. Part of the reason for this is that in P?S/8
+    DECtape handlers, the handler is internally responsible for maintaining the current position of the tape. Any call will be used to determine whether to
+    search forward or backwards based solely on the current tape position info obtained from the previous call to the handler.
+    </p>
+    <p>
+    Years ago I wrote such a handler for OS/8 that ignores bit[11] in the function word and instead maintains this "dead reckoning" on its own. If
+    interest is warranted, I can locate this code and make it available to the user community. (It is not an exact knee-jerk "clone" of the standard OS/8
+    TC01/08 DECtape handler as there are design philosophy differences on other issues as well, but IMHO any user would appreciate the differences and would
+    prefer my handler to the standard one.)
+    </p>
+    <p>
+    In any case, it is clear that the following handlers are up for consideration:
+    </p>
+    <p>
+    TC01/08 system and non-system handlers.
+    TD8E system and non-system handlers and the TD8E MR-8EC ROM system handler.
+    PDP-12 LINCtape handler
+    LINC-8 LINCtape hander for a modified LINC-8 and the non-system handler.
+    Also the 12K system handler for an unmodified LINC-8 and a possible two-page handler for use as a non-system handler on original hardware.
+    </p>
+    <p>
+    The TC01/08 system consideration was outlined above. The TD8E system handler is also written to obey this bit. Among other considerations already 
+    implemented in P?S/8 is the same optimization for search direction on this hardware. It is likely that both the system and non-system handlers can be
+    made similarly "smarter". The ROM-based system ignores the bit. The PDP-12 hardware is too complicated to allow the OS/8 handlers to deal with the bit,
+    so all transfers are made starting with a reverse search. It is conceivable that the LINC-8 handlers can be made similarly smarter; the modified LINC-8
+    hardware includes help-outs to the handler for P?S/8 to accomplish this already, but it isn't clear that the non-system handler for an unmodified machine
+    can accomplish this in less than two pages.
+    </p>
+    <p>
+    In any case, it would appear that an adequate job can be done to eradicate the need for this bit in OS/8 completely. The worst-case consequence of the bit
+    is that the call to save memory during the exit via 007600 would involve a transfer initiated with a forward search. (And it's conceivable that this
+    might even be the proper thing to do!) There are no other OS/8 handlers that pay attention to this bit. (Note, there are non-file-structured devices that
+    use these bits; this is irrelevant!)
+    </p>
+    <p>
+    So, a replacement console routine for OS/8 Version 5 would be the same as the P?S/8 example, except that the location being incremented would be
+    007601, not 007611. The OS/8 keyboard monitor would have to be made sensitive to bit[11] of 007601 as well as the case of the KSF/KRB skip of a ^C but only
+    on PDP-8 hardware.
+    </p>
+    <p>
+    Thus, a replacement OS/8 system can be built for use on PDP-8's or DECmates, but every system program that requires DECmate application must be upgraded
+    to the new standard.
+    </p>
+    <p>
+    Along the way, some other issues will be addressed, such as creeping model dependencies, which must be eliminated to allow one system version to run
+    on all of the machines it ought to, which is not currently the case in OS/8.  (P?S/8 already has accomplished this: you can carry a single RX01-type 8"
+    floppy disk to any appropriately configured machine all the way from a classic 1965 PDP-8 through a DECmate II and boot that very same disk on
+    any of the machines.)
+    </p>
+    <p>
+    Next time, more DECmate-specific quirks that impede compatibility due to other problems, etc.
+    </p>
+    <p>
+    cjl
+    </p>
+    <p>
+    This is the third in a series of posts about why the DECmate series of small computers is not quite what we know as a PDP-8. Already covered are the minor
+    CPU issues, and the significant differences in the console interfaces between all PDP-8s and all DECmates, and what can be done about these particular
+    consequences, etc.
+    </p>
+    <h3>
+    3)	Disk issues.
+    </h3>
+    <p>
+    Systems such as OS/8 and P?S/8 have to be configured for whatever machine-specific disk environment they run on, so in theory, this aspect of
+    compatibility shouldn't be an issue. However, there are some problematic compatibility details anyway.
+    </p>
+    <p>
+    The DECmate I is essential compatible on this issue, as the boot device of the DECmate I is either an RX01/02 or an RL02. The only actual
+    difference between the DECmate I RX interface and a PDP-8 version is that the VT-78-style interface is present, i.e., the software has to deal with
+    the potential of two pairs of RX drives. This is controlled by the SEL IOT (6750) which is defined as: load pair select per AC[11] where 0=the drive
+    pair found on the PDP-8 and 1=the optional pair found only on the VT-78 or DECmate I (VT-278). Some system handlers for RX do not include the SEL
+    instruction to ensure this condition, but it is the default state of the machine. All software, such as the non-system handler to access the second
+    pair, is responsible for resetting the select line to ensure the proper functioning of the system handler; it is likely that certain, but not all,
+    existing system handlers for RX usage will be so tightly coded that this convention must be obeyed, since this is another tradeoff of features and
+    performance versus handler space that could not have been anticipated by the authors of these handlers. There are user-written RX handlers to
+    accomplish such things as byte-mode transfers to gain back 33% more disk space over the standard DEC 12-bit mode. There are also handlers to allow
+    for accomplishing this with/without the use of the otherwise wasted space on track 0, and also to mimic the disk layout of COS and/or WPS to allow
+    conversion programs such as WPFLOP to function. Still others are designed to be able to boot a byte-mode system so that the system device also benefits
+    from the additional space, etc. There also exists a set of handlers for use on RT-11-style disk layout to gain faster throughput as well.
+    </p>
+    <p>
+    The overall point here is that there has been a lot of RX work provided by the user community seeking performance beyond what little DEC has provided. By
+    switching the "rules" and requiring the software maintain yet another item of "housekeeping" compromises these handlers yet further. (Even in 12-bit mode,
+    it is impossible to accomplish all of the requirements of an RX handler in only two pages, the OS/8 upper limit. There exists an analogous handler for
+    P?S/8 usage, which requires three pages; P?S/8 allows handlers up to 32 pages long. Thus, any two-page handler is compromised in some way, usually in the
+    area of error recovery or performance, possibly only affecting certain models, etc.)
+    </p>
+    <p>
+    The DECmate II complicates this issue further. On this specific machine, the RX-78 option allows for one or two pairs of RX01/02 (and at the same time
+    prevents the RD51D hard disk option; you can either have one pair of RX50 and a hard disk or up to eight floppies implemented as two pairs of RX01/02 and
+    two pairs of RX50). However, the selection interface of the DECmate II is incompatible with that of the VT-78 and DECMate I, and requires several more
+    instructions to provide compatible selection with the prior models. Thus, all existing user-written and older DEC-provided handlers cannot run on the
+    DECmate II. Only those that can be modified slightly can be made to run on this hardware (which is somewhat more difficult presently than necessary; see
+    below).
+    </p>
+    <p>
+    This issue is complicated further by a specific design "philosophy" of OS/278: In OS/8, the RX done flag is used as a status indicator. Assuming no interrupt
+    enabled (or the RX device interrupt is specifically disabled; this is in the province of any interrupt-driven program designed for the machine, etc.) the
+    done flag being up is used as an idle status indicator. The reason for this is that a handler can never know the current status of the drives when it is
+    called; there could be a system reset in progress, which takes up to five seconds to complete. The convention for the handlers is to assume that you
+    should wait for the done flag to raise, since it's already up or will be up (eventually) at which time you should proceed with the main work of the
+    call. Handler exit is accomplished by executing an innocuous function that cannot fail (such as READ ERROR REGISTER) and then exiting without waiting for
+    the function to complete. (The problem is that to test the done flag is to clear it, since the relevant IOT (SDN) is Skip on DoNe set, clear done flag.)
+    Thus, the hardware is now in a favorable state for the next caller. Should a power-clear condition occur at some point, the handler will have to wait
+    for up to five seconds, but can otherwise proceed, etc.
+    </p>
+    <p>
+    When OS/278 was introduced, the new designers revised this convention. Under OS/278, the RX done flag is always assumed to be clear. This sometimes causes
+    handlers to fail, or at the least go through some error recovery cycles before accomplishing the requested handler calls, etc. There exists some user 
+    programs that make the system crash when run from an OS/278 floppy, while functioning correctly when run from an OS/278 hard disk volume! All of this
+    is traceable to bad interaction with the new convention.
+    </p>
+    <p>
+    To operate under this convention will add an undue burden to the handlers written by the user community, and it isn't necessary. I have already written
+    P?S/8 handlers that work perfectly fine under the original flag convention on the DECmate II hardware. (I have created a "bootable" RX01/02 P?S/8 system.
+    Since the hardware of the DECmate II can only boot to an RX50 or hard disk volume, it is necessary to first boot to the RX50, then run a "re-boot"
+    program to bring up the RX01/02-based P?S/8, which is meant to be booted directly on a PDP-8 or VT-78 or DECmate I, etc.)
+    </p>
+    <p>
+    OS/8 version 5 will restore the original convention, and thus will require rewriting the DEC-style handlers accordingly. However, all user-written
+    handlers will function as intended, i.e., will function only on the PDP-8 system they were designed for. If possible, all handlers should be modified
+    to be compatible with the restrictions of all of the machines. (Some of the specific requirements are: 1) Must be able to have decent throughput on the
+    slow VT-78; this is often not the case, especially on writes. 2) Must be able to support the SEL hardware of the VT-78/DECmate I, and preferably the
+    DECmate II. 3) Should have decent error recovery if possible. In general, it's impossible to have all of this, especially if the format involves the
+    use of byte-mode transfers, and the format is single density, thus requiring checking for the possibility of performing byte-mode single density transfers
+    on RX02 as opposed to RX01 which programs slightly differently in this mode, etc.)
+    </p>
+    <p>
+    In any case, the user-community software investment in RX utility will not go to waste.
+    </p>
+    <p>
+    In the case of the DECmate I, there is only one consideration: the RL8A controller allows for the ability to support existing software for RL01
+    or RL02, but not both. There exists a support jumper on the RL8A hardware that prevents some unforeseen consequence from occurring regarding the bit
+    normally used in the RL02 for additional seek cylinders, etc. Apparently, the jumper has to be set so that the hardware isn't subject to a mis-set
+    bit in the software. Several theories exist as to what the proper setting of this bit is, that the hardware provides to the drives, etc. Possible
+    examples are: 1) always one. 2) always zero. 3) Sign extension of the bit immediately to the right of this bit. 4) some form of parity. In any case,
+    RL01 software doesn't maintain any consistent usage of this bit, so the hardware jumper is used to maintain compatibility. When the RL02 is used,
+    the software correctly uses this (extra) bit. Thus, mixed systems of RL01 and RL02 are not allowed. In theory, if/when we find out what this bit
+    setting is, we can possibly modify all of the RL01 software to support an RL01 in a controller where the bit is set for full RL02 support, similar to
+    the existing PDP-11 support currently.
+    </p>
+    <p>
+    In any case, RL8A users cannot currently mix RL01 and RL02 drives. The DECmate I RL-278 controller apparently lacks this jumper altogether, thus only allowing
+    RL02 drives, until the software clean-up described is implemented. In the case of RL02 software specifically, the DECmate I is fully compatible. (This
+    does assume that the software is *otherwise* compatible, such as with the DECmate console interface or CPU differences!)
+    </p>
+    <p>
+    On the DECmate II, III, III+, new software has to be written for the RX50, since the DEC-provided OS/278 handlers instigate the above-mentioned flag
+    incompatibility. This should prove as difficult as modifying the user-written handlers, etc.
+    </p>
+    <p>
+    DECmate II and III+ hard disk volume software is essentially acceptable, up to a point, since this is the province of these machines only.
+    </p>
+    <p>
+    Next time, problems of the RX50 and hard disk volume software not covered yet.
+    </p>
+    <p>
+    cjl
+    </p>
+    <h3>
+    4)	PART 4 NOT FOUND AS OF YET
+    </h3>
+    
+  </div>
+  </div>
+  </div>
+</body>
+</html>

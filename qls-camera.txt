@@ -1,0 +1,47 @@
+QL Succession Camera
+
+The purpose of the QL Succession project, henceforth referred to as QLS, is to procure a replacement for the existing QL system. An important feature of QLS is the ability to take photographs of subjects suitable for use on pass cards. It is the purpose of this note to explore possible ways of meeting this requirement.
+
+Requirements
+
+The requirements for the camera aspects of QLS are as follows:
+
+Must
+Images of suitable quality can be produced
+
+Should
+The positioning of the camera can be controlled by the user in order to assist obtaining suitable images.
+
+Non-functional
+In this note it is being assumed that standards compliant solutions are being sought wherever possible.
+
+Review Of Existing QL System
+
+QL contains a PC Windows application that controls a webcam via a USB port. The application is capable of using different webcams although the primary camera being used is a Huddle PTZ webcam. PTZ refers to Pan Tilt and Zoom and the application allows this to be controlled to position the subject in the picture.
+
+The existing system while capable of supporting different cameras in principle has given problems in this regard and it would be expected that QLS would be camera agnostic as far as possible.
+
+QLS Architecture
+
+It is intended that the core QLS software will be hosted in the AWS cloud and that ideally no component will need to be installed on users machines and that users will access the application via their browser. There are two possibilities of connecting a camera:
+	o Via the USB port of the users machine
+	o Via the network using IP
+It should be noted that this assumed architecture does have a big impact on how cameras can be used. Controlling a camera from a locally installed application via USB as the existing QL application does is probably the simplest solution but not one investigated here!
+
+Possible QLS Cameras
+
+At this stage it is not proposed to specify or recommend any particular cameras but to help focus the investigation the following two newly introduced cameras were considered:
+	o HuddleCamHD Pro 4K EPTZ USB
+	o HuddleCamHD Pro 4K EPTZ NDI (Network Device Interface) IP
+These cameras were selected as they are from the existing supplier and incorporate the standard interfaces of this type of camera.
+
+Video Encoding Standard
+The cameras generate video data using the standard H.264. H.264 or MPEG-4 AVC (Advanced Video Coding) is a video coding format for recording and distributing full HD video and audio. It essentially compresses video data by sending a complete image followed by a series of deltas.
+Both cameras generate encoded data in this format but it is the transport mechanisms that vary.
+
+Browser Interface
+The browser is the receiving endpoint for the video data and depending how this is configured will affect what protocols can be used. Because a standards solution is being sought this basically means the HTML5 <video> and <canvas> elements for video and still images respectively.
+In earlier times plugins may have been used for this, notably the now obsolete Adobe Flash.
+
+
+

@@ -1,0 +1,151 @@
+We’ve all suffered poor video streaming at one point or another. Waiting for the endless buffering wheel to disappear, watching the video quality degrade to cubism art, … these are the little nuisances of live video streaming that even fast connections can’t always resolve. The applied streaming protocol might be the culprit. It pays to understand the technology behind live streaming and find out how to deliver a better experience to your audience.
+
+In this article, we’ll discuss one of the older streaming protocols still being used to this day. We’ll tell you all you need to know about RTMP and RTMP server solutions in 5 frequently asked questions.
+
+ 
+
+Jump to:
+
+What Is an RTMP Server?
+What Is RTMP Used For?
+How Does RTMP Streaming Work?
+What Are the Best Alternatives to RTMP?
+How to Set Up RTMP?
+ 
+
+ 
+
+What Is an RTMP Server?
+RTMP stands for Real-Time Messaging Protocol. It is a TCP-based protocol developed by Macromedia (Adobe) in 2002 to stream audio, video, and data over the internet. The primary role of RTMP was to enable the smooth transmission of increased amounts of data, which was needed to play video on Adobe’s Flash Player. While Flash turned obsolete at the end of 2020, RTMP continues to be used as an open-source protocol for first-mile contribution (from an encoder to an online video host), accepted by most streaming providers and encoders, including Kaltura.
+
+ 
+
+The big advantage of RTMP is that it maintains a persistent TCP connection between the video player and the server, delivering a reliable stream to the end-user.
+
+ 
+
+RTMP comes in 5 variations:
+
+RTMP: The plain TCP- based protocol
+RTMPS: uses a secure SSL connection to minimize the risk of cloud-based streaming, great for townhalls and corporate meetings.
+RTMPE: uses Adobe’s proprietary security encryption and is a lighter-weight encryption layer than RTMPS.
+RTMPT: encapsulated with HTTP to bypass firewalls and corporate traffic filtering.
+RTMFP: uses UDP instead of TCP
+ 
+
+ 
+
+What is RTMP Used For?
+Low latency
+
+RTMP splits the data stream into fragments of which the size is negotiated dynamically between the client and the server. This enables the transmission of higher amounts of data, effectively lowering the latency of the stream to about 5 seconds. Latency is the delay between the moment a live stream is recorded and when that live stream is displayed on the viewer’s screen, often referred to as glass to glass (from the front glass of the camera to the front glass of the viewer’s screen). Achieving low latency is important for live event broadcasting and a constant challenge for streaming platforms that want to attract sports streaming and other time-sensitive use cases.
+
+ 
+
+Reduced buffering
+
+Closely related to its low-latency features, RTMP causes minimal buffering (the much-dreaded wheel that starts spinning over your frozen video image). Tests have shown that users leave a video experience after a second round of buffering. According to research, 90 seconds is the longest a viewer is willing to tolerate buffering (I applaud the patience of those viewers. My personal limit is closer to 15 seconds).
+
+ 
+
+Adaptive Bitrate Streaming
+
+Adaptive Bitrate Streaming or ABS matches the compression level and video quality of a stream with the available bandwidth on the user’s end. This ensures a pleasing viewer experience on any device and connectivity and goes hand in hand with reduced buffering. ABS automatically displays the highest quality that a given bandwidth allows, without buffering or freezing. RTMP technology is used in ABS.
+
+ 
+
+Fast-forward and rewind
+
+When you think of it, it’s a bit of a technological feat to be able to fast-forward or rewind video streams. RTMP is at the base of this technology, too.
+
+ 
+
+How Does RTMP Streaming Work?
+Typically, live streaming works as follows: A live video feed is picked up by a camera and sent to an online video host or server via an encoder. This is called the first mile. The processed feed is then scaled and pushed forward through a Content Delivery Network (CDN) for distribution over internet protocol to the user’s device. In this so-called last mile, the stream would be delivered to the Flash Player on the user’s end. But since the Adobe Flash Player was brought to retirement, RTMP is no longer running the last mile. Other protocols need to take over the relay from this point.
+
+ 
+
+For the first mile, however, RTMP is still widely used. It delivers data-rich streams smoothly by splitting them into chunks and sending them separately through several virtual channels. RTMP opens a persistent connection between the client and the server, allowing the protocol to act as a carrier to deliver the data packets.
+
+ 
+
+RTMP delivers the data packets in a three-step process that happens in just a few seconds:
+
+The TCP/IP handshake
+The client and server exchange information to ‘agree’ on the stream transmission.
+
+ 
+
+Create the right experience for your brand with Kaltura Virtual Events. Take a tour today!
+
+REQUEST A DEMO
+The connection
+The client and server negotiate a connection via a message sequence.
+
+ 
+
+The stream
+To start the video, the client sends the server a createStream invocation, followed by a ping and play message.
+
+Man working on an RMTP server
+ 
+
+What Are the Best Alternatives to RTMP?
+RTMP has been around for two decades, which in technology terms pretty much means it’s the grandaddy of protocols. And indeed, times sure have changed on the interwebs. Live streaming is no longer limited to web browsers. They have to be viewable on OTT devices and mobile devices, as well, which no longer accept RTMP.
+
+ 
+
+RTMP doesn’t support high-res video because it doesn’t work at high bitrates, due to bandwidth restrictions. These disadvantages make RTMP ill-suited for high-quality video or scalability.
+
+ 
+
+Is RTMP dead, then? For first-mile contribution, it isn’t. Mostly because of the legacy factor, RTMP is still the second most applied streaming protocol after HLS. But it pays to know your alternatives, in case RTMP doesn’t work for you.
+
+ 
+
+HTTP-based protocols (using web servers) are currently the preferred streaming protocols.
+
+ 
+
+HLS Streaming Protocol
+HLS was designed by Apple and stands for HTTP Live Streaming and, as mentioned before, it is currently the most used streaming protocol for last-mile delivery. Initially, HLS caused a considerably higher latency than RTMP, but this issue might be solved soon. On the plus side, HLS is highly scalable and compatible with browsers, mobile devices, and other streaming devices. It is often used in conjunction with RTMP where the latter takes on first-mile contribution and the former last-mile delivery.
+
+ 
+
+MPEG-DASH
+MPEG-DASH is an open-source alternative to HLS for last-mile delivery. DASH stands for Dynamic Adaptive Streaming over HTTP. It supports any encoding format, DRM, low-latency streaming, etc. On the downside, MPEG-DASH has a high latency of up to 30 seconds.
+
+ 
+
+RTSP Streaming Protocol
+RTSP stands for Real-Time Streaming Protocol. What is the difference between RTSP and RTMP? RTMP acts on the first mile of the streaming process, while RTSP picks up the stream from the cloud to the video player, making it possible for the viewer to play, pause, and rewind.
+
+ 
+
+WebRTC
+WebRTC stands for Web Real-Time Communications and is an open-source protocol designed to enable browsers and mobile applications with real-time communication. This protocol allows ultra-low latency with sub-500 milliseconds delays. At this stage though, WebRTC isn’t usable for large-scale streams, as it was designed with meetings and small broadcasts in mind. It needs modifications to be able to scale.
+
+ 
+
+SRT
+SRT stands for Secure Reliable Transport and is the up-and-coming protocol for first-mile contribution. It was designed for low-latency (sub-second!) streaming over lossy networks and is also open-source and codec agnostic. Like RTMP, SRT is a persistent protocol that optimizes bandwidth. The biggest drawback of this protocol is the lack of a playback option and the lack of support among platforms as it is still in its infancy.
+
+ 
+
+How to Set Up RTMP?
+You’ll need an encoder (hardware or software) that supports RTMP, and you’ll need an RTMP server or online video platform (OVP), like Kaltura Townhalls and Live Events, which distributes the stream to your audience.
+
+Connect your video source (camera) to your RTMP encoder software or hardware
+Create a new live stream in your OVP or RTMP server
+Set up your encoding options in your OVP
+Enable RTMP delivery by setting the RTMP URL
+Enter your stream name and RTMP URL in your encoder under the RTMP configuration settings
+Test your live stream
+Start streaming
+ 
+
+ 
+
+Conclusion
+Hopefully by now, you got a good understanding of what is an RTMP server, how it can support your live streams, and what the current alternatives are. Streaming protocols and video broadcasting can be a highly complex and technical field. Luckily, video platforms like Kaltura keep the complexity under the hood while offering the end-user, you, a convenient and powerful interface that allows you to do everything you want to do with your live stream without standing in the way of your creativity and your goals. Keep your eyes peeled for more articles covering other streaming protocols and the ins and outs of live streaming, right here on the Kaltura blog!
+

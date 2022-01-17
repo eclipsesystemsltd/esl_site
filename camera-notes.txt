@@ -1,0 +1,146 @@
+https://github.com/MaxMEllon/vim-jsx-pretty
+
+VISCA
+libvisca
+
+https://ptzoptics.com/wp-content/uploads/2014/09/PTZOptics-VISCA-over-IP-Commands-Rev1_0-5-18.pdf
+https://ptzoptics.com/wp-content/uploads/2020/11/PTZOptics-VISCA-over-IP-Rev-1_2-8-20.pdf
+https://www.epiphan.com/userguides/LUMiO12x/Content/UserGuides/PTZ/3-operation/VISCAcommands.htm
+https://support.huawei.com/enterprise/en/doc/EDOC1000129687/8d49f1bf/visca-control-commands
+and from the Sony EVI H100S User Manual
+https://pro.sony/en_BA/support-resources/evi-h100s/manual
+https://manualsbrain.com/en/manuals/1047691/
+
+https://sourceforge.net/u/ddouxchamps/profile/
+https://sourceforge.net/projects/libvisca/
+https://sourceforge.net/p/libvisca/git/ci/master/tree/
+
+chrome://media-internals/
+fbsamples/Canvas-Streaming-Example
+https://ibaslogic.com/react-tutorial-for-beginners/
+https://dev.to/franciscomendes10866/how-to-create-a-video-player-in-react-40jj
+https://itnext.io/accessing-the-webcam-with-javascript-and-react-33cbe92f49cb
+https://www.section.io/engineering-education/video-conferencing-app-with-react-node/
+https://codelabs.developers.google.com/codelabs/webrtc-web?hl=en#0
+
+VISCA is a kind of mid level protocol designed for video conference type applications. Its limited to 7 cameras in a chain. There are a range of joystick controllers for PTZ camera control, ones using the VISCA protocol come in at around £1000
+Pelco is a CCTV protocol - it works over longer distances than VISCA and doesn't have a 7 camera limit. Controllers for pelco are much cheaper than VISCA controllers.
+Proper broadcast systems use much more complex protocols as the CCU has to control many more options that are specific to the camera. 3rd party control systems (from the likes of telemetrics) generally have their own protocol for hothead positioning and use the standard broadcast lens control spec, often they provide a pass through for the camera remote so the camera manufacturers RCPs can be interfaced into the system.
+
+
+Almost all video conferencing PTZ cameras support the VISCA protocol. The VISCA protocol has become the most common control protocol in the field of video conferencing and surveillance.
+The main parameters of the VISCA protocol are the baud rate and the instruction code. The baud rate is a device parameter when writing to the serial port. Different parameters correspond to different serial devices.
+What is VISCA protocol?
+The PELCO protocol is the same as the VISCA protocol, which belongs to the industry-wide pan/tilt control protocol. The PELCO protocol is divided into the PELCO-P protocol and the PELCO-D protocol.
+
+Pelco uses 2 different protocols to send PTZ (Pan, Tilt, Zoom) commands to cameras: Pelco D and Pelco P. I'd like to understand the difference from a high-level perspective. Are they meant for different use cases? Is one more feature-complete than the other? What are their practical differences?
+
+Both protocols are usually transmitted using RS485 over a pair of wires. You can have the same pair of wires running to multiple cameras with each camera having a different address. The maximum length for RS485 is about 1200m which makes it ideal for running between the cameras. There are various pieces of equipment you can use to combine the RS485 and the video signal into a single coaxial cable at one end and then split it back into 2 at the other but that is separate from the protocol:
+Pelco-D
+Byte 1 - Start transmission - always 0xFF
+Byte 2 - Address of camera
+Byte 3 - Command 1
+Byte 4 - Command 2
+Byte 5 - Data 1
+Byte 6 - Data 2
+Byte 7 - Checksum
+Pelco-P
+Byte 1 - Start transmission. Always 0xA0
+Byte 2 - Address of camera - Range 0x00 to 0x1F
+Byte 3 - Command 1
+Byte 4 - Command 2
+Byte 5 - Data 1
+Byte 6 - Data 2
+Byte 7 - End Transmission. Always 0xAF
+Byte 8 - Checksum 
+Pelco P addresses 32 cameras whereas Pelco D can address 256. Pelco D has extra commands for AGC, backlight compensation, white balance and gain. It also has commands to query the PTZ position and to explicitly set the PTZ position.
+
+Pelco P is the older of the two protocols and is deprecated; Pelco D is newer and has more functionality. Both protocols use RS-422 at 2400, 4800, or 9600 bps, but support for the various speeds is hardware-dependent. Some cameras such as Spectra IV domes auto-sense the protocol and switch between P and D automatically, while others require that P or D be set explicitly via DIP switches.
+Pelco P supports 32 cameras. It uses zero-based addressing internally, but one-based addressing for anything user facing (as you can see in the linked document). For example, to address a camera as Pelco P #1, you set all of its address DIP switches to OFF (binary 0) and set the address byte to 0 (zero) in the Pelco P message.
+Pelco D, on the other hand, supports 254 cameras. Address 0 is unused, while address 255 (0xFF) is the Pelco D start flag and is, therefore, reserved. Pelco D does not have any of zero-vs-one-based addressing confusion as does P: to address a camera as Pelco D #1, you set its first address DIP switch to ON and all others to OFF (binary 1) and set the address byte to 1 in the Pelco D message.
+Now, since the DIP switch setting for Pelco D #1 also happens to correspond to Pelco P #2, you can also communicate with this same camera (assuming it auto switches between D and P) by sending it a Pelco P message with the address byte set to 1. Confused yet? Also, with Pelco P, you tell the technician to set the camera to address 2 by setting the DIP switches to a binary value of 1! It's for these reasons, plus the fact that it's newer and more functional, that I prefer Pelco D in code and in practice.
+
+
+
+
+The Real Time Streaming Protocol (RTSP) is a network control protocol designed for use in entertainment and communications systems to control streaming media servers. The protocol is used for establishing and controlling media sessions between endpoints. Clients of media servers issue commands such as play, record and pause, to facilitate real-time control of the media streaming from the server to a client (Video On Demand) or from a client to the server (Voice Recording).
+
+The transmission of streaming data itself is not a task of RTSP. Most RTSP servers use the Real-time Transport Protocol (RTP) in conjunction with Real-time Control Protocol (RTCP) for media stream delivery. However, some vendors implement proprietary transport protocols. The RTSP server software from RealNetworks, for example, also used RealNetworks' proprietary Real Data Transport (RDT).
+
+While similar in some ways to HTTP, RTSP defines control sequences useful in controlling multimedia playback. While HTTP is stateless, RTSP has state; an identifier is used when needed to track concurrent sessions. Like HTTP, RTSP uses TCP to maintain an end-to-end connection and, while most RTSP control messages are sent by the client to the server, some commands travel in the other direction (i.e. from server to client).
+
+
+The USB video device class (also USB video class or UVC) is a USB device class that describes devices capable of streaming video like webcams, digital camcorders, transcoders, analog video converters and still-image cameras.
+
+The latest revision of the USB video class specification carries the version number 1.5 and was defined by the USB Implementers Forum in a set of documents describing both the basic protocol and the different payload formats.
+
+
+
+2. Port Settings:
+While the IP address identified the device, the camera uses multiple ports for
+communication that can be adjusted if necessary.
+HTTP Port: This is the port for web applications using the default port of 80.
+RTSP Port: The camera supports the RTSP streaming protocol using the default
+port of 554.
+PTZ Port: Supports camera control via the TCP protocol using the default port
+of 5678
+UDP Port: Supports camera control via the UDP protocol using the default port
+of 1259
+3. Control Protocol Settings:
+Control IDs / addresses for Pelco-D (0-255) and Pelco-P (0-31) may be set here.
+4. RTMP Settings:
+The camera provides for up-to three (3) RTMP streams to an RTMP server or servers
+providing an appropriate RTMP string to use with the camera’s encoder.
+Set 1st, 2nd
+, and/or 3
+rd stream to ‘On’ or ‘Off’ as desired.
+Check to include video and/or audio as desired.
+Enter the address provided from / for the RTMP server in the MRL location
+Note: an RTMP streaming server is required for use of RTMP streaming feature.
+5. RTSP Authorization:
+Enable or disable authorization for accessing the RTSP output stream(s)
+
+
+What Is an RTMP Server?
+RTMP stands for Real-Time Messaging Protocol. It is a TCP-based protocol developed by Macromedia (Adobe) in 2002 to stream audio, video, and data over the internet. The primary role of RTMP was to enable the smooth transmission of increased amounts of data, which was needed to play video on Adobe’s Flash Player. While Flash turned obsolete at the end of 2020, RTMP continues to be used as an open-source protocol for **first-mile** contribution (from an encoder to an online video host), accepted by most streaming providers and encoders, including Kaltura.
+The big advantage of RTMP is that it maintains a persistent TCP connection between the video player and the server, delivering a reliable stream to the end-user.
+RTMP comes in 5 variations:
+RTMP: The plain TCP- based protocol
+RTMPS: uses a secure SSL connection to minimize the risk of cloud-based streaming, great for townhalls and corporate meetings.
+RTMPE: uses Adobe’s proprietary security encryption and is a lighter-weight encryption layer than RTMPS.
+RTMPT: encapsulated with HTTP to bypass firewalls and corporate traffic filtering.
+RTMFP: uses UDP instead of TCP
+
+
+HTTP-based protocols (using web servers) are currently the preferred streaming protocols:
+HLS Streaming Protocol
+HLS was designed by Apple and stands for HTTP Live Streaming and, as mentioned before, it is currently the most used streaming protocol for last-mile delivery. Initially, HLS caused a considerably higher latency than RTMP, but this issue might be solved soon. On the plus side, HLS is highly scalable and compatible with browsers, mobile devices, and other streaming devices. It is often used in conjunction with RTMP where the latter takes on first-mile contribution and the former last-mile delivery.
+MPEG-DASH
+MPEG-DASH is an open-source alternative to HLS for last-mile delivery. DASH stands for Dynamic Adaptive Streaming over HTTP. It supports any encoding format, DRM, low-latency streaming, etc. On the downside, MPEG-DASH has a high latency of up to 30 seconds.
+RTSP Streaming Protocol
+RTSP stands for Real-Time Streaming Protocol. What is the difference between RTSP and RTMP? RTMP acts on the first mile of the streaming process, while RTSP picks up the stream from the cloud to the video player, making it possible for the viewer to play, pause, and rewind.
+WebRTC
+WebRTC stands for Web Real-Time Communications and is an open-source protocol designed to enable browsers and mobile applications with real-time communication. This protocol allows ultra-low latency with sub-500 milliseconds delays. At this stage though, WebRTC isn’t usable for large-scale streams, as it was designed with meetings and small broadcasts in mind. It needs modifications to be able to scale.
+SRT
+SRT stands for Secure Reliable Transport and is the up-and-coming protocol for first-mile contribution. It was designed for low-latency (sub-second!) streaming over lossy networks and is also open-source and codec agnostic. Like RTMP, SRT is a persistent protocol that optimizes bandwidth. The biggest drawback of this protocol is the lack of a playback option and the lack of support among platforms as it is still in its infancy.
+
+
+About WebM
+WebM is an open, royalty-free, media file format designed for the web.
+WebM defines the file container structure, video and audio formats. WebM files consist of video streams compressed with the VP8 or VP9 video codecs and audio streams compressed with the Vorbis or Opus audio codecs.
+The WebM file structure is based on the Matroska container.
+
+WebM is a video format specifically designed for internet users. It’s a dynamic web format that is used for amateur videos, live streaming, and just about any video available. WebM is also an open-source project which means anybody could work with it.
+Launched in 2010, WebM sought out to be an accessible, yet cost-effective video format. With easy accessibility and quality features, WebM is quickly turning into one of the top-quality video formatting technologies that we have today.
+Let’s take a look at how WebM is changing technology and why it’s effective for videos.
+Benefits of WebM
+WebM format provides outstanding quality for videos. It’s fantastic for online streaming and its a success is based on a variety of robust features. Here are the benefits of using WebM.
+Accessibility
+The key here is that anybody could use WebM. It’s open-source which makes WebM super accessible to anybody. It has core technologies such as HTML, HTTP, and ICP/IP so anybody could improve the project. WebM has a BSD-style license which allows its open source capability.
+
+WebUSB API
+The WebUSB API allows Web applications to interact with the Universal Serial Bus-compatible devices available in the system. In order to authorize the application to get the access to the device, user needs to confirm the intent in the browser's UI that in turn may only be initiated with a gesture (for example, a button click, but not automatically by arbitrary JavaScript).
+
+The API is based on the USB 3.1 specification and exposes all the USB primitives to JavaScript - including configurations, interfaces, endpoints and all the transfer types: CONTROL (suitable for commands), INTERRUPT (suitable for small time-sensitive data), BULK (suitable for large time-sensitive data) and ISOCHRONOUS (suitable for streams, for example media)
+
+The specification, apart from the JavaScript API, defines a Platform Descriptor object that might be implemented at the device side to advertize its support for WebUSB. Google Chrome's implementation uses it to notify the user about the landing page of the plugged in device with the system notification.
